@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block baslik %}Risk haritası · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+<h1 class="sayfa-baslik">Risk–getiri haritası <small>{{ noktalar|length }} hisse</small></h1>
+<p class="giris">Her nokta bir hisse. Sağa gittikçe fiyatı daha oynak (riskli), yukarı çıktıkça daha çok
+kazandırmış. Kesikli çizgiler BIST 100'ü gösterir: sol üstteki hisseler endeksten <b>daha az oynaklıkla daha
+fazla</b> kazandırmış. Bir noktaya tıklayarak hissenin sayfasına gidebilirsiniz.</p>
+
+<div class="harita-arac">
+  <nav class="sekmeler" aria-label="Getiri dönemi">
+    {% for d in ['1a','3a','6a','ytd','1y'] %}
+      <a href="/harita?donem={{ d }}" {% if d == donem %}aria-current="page"{% endif %}>{{ DONEMLER[d] }}</a>
+    {% endfor %}
+  </nav>
+  <label class="vurgula">Sektörü vurgula
+    <select id="harita-sektor">
+      <option value="">Yok</option>
+      <option value="__bist100">BIST 100 hisseleri</option>
+      {% for s in sektor_listesi %}<option>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+</div>
+
+<section class="grafik-kutu">
+  <div id="harita" class="grafik grafik-harita"></div>
+</section>
+<p class="not">Yatay eksen son 1 yılın yıllık oynaklığı (volatilite), dikey eksen seçilen dönemin getirisidir.
+Getiriler nominal TL getirisidir.</p>
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>
+  haritaKur("harita", {{ noktalar|tojson }}, {
+    endeksX: {{ (xu100.volatilite_1y * 100)|round(2) }},
+    endeksY: {{ (xu100['getiri_' ~ donem] * 100)|round(2) }},
+    donemAdi: {{ DONEMLER[donem]|tojson }},
+  });
+</script>
+{% endblock %}

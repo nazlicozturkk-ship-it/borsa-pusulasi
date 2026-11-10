@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block baslik %}Modeller · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+<h1 class="sayfa-baslik">Tahmin modelleri</h1>
+{% if not hazir %}
+<section class="bos">
+  <h2>Tahminler henüz hesaplanmadı</h2>
+  <p><b>7_tahmin_modelleri.bat</b> dosyasını çalıştırın, ardından bu sayfayı yenileyin.</p>
+</section>
+{% else %}
+<p class="giris">Dört model, {{ m.hisse_sayisi }} hissenin her birinde geçmişte 6 farklı tarihte test edildi: her
+seferinde sadece o güne kadarki fiyatları görerek sonraki 20 işlem gününü (yaklaşık bir ay) tahmin etti ve
+tahminler gerçekleşen fiyatlarla karşılaştırıldı.</p>
+
+<section class="getiri-alan">
+  <h2>Bütün borsada karşılaştırma</h2>
+  {% set enbuyuk = (m.satirlar|map(attribute='en_iyi')|max) or 1 %}
+  <div class="tablo-kaydir">
+  <table class="model-ozet-tablo">
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th class="sayi" title="Hisselerdeki ortalama yüzde hatanın medyanı">Ort. hata</th>
+        <th class="sayi" title="20 gün sonraki yönü doğru bilme oranı">Yön doğru</th>
+        <th class="sayi" title="Modelin naif modelden daha az hata yaptığı hisselerin oranı">Naiften iyi</th>
+        <th class="sayi">En iyi olduğu hisse</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set aciklama = {
+        'naif': 'Gelecekte de bugünkü fiyat olur. Diğer modellerin geçmesi gereken ölçüt.',
+        'hareketli_ortalama': 'Son 20 günün ortalama fiyatı sabit kalır.',
+        'dogrusal_regresyon': 'Son 6 ayın trend çizgisi aynı eğimle devam eder.',
+        'arima': 'Günlük fiyat değişimlerini kendi geçmişi ve geçmiş hatalarla açıklayan istatistiksel model.'
+      } %}
+      {% for r in m.satirlar %}
+      <tr>
+        <th scope="row">{{ r.baslik }}<small>{{ aciklama[r.ad] }}</small></th>
+        <td class="sayi">{{ r.mape|yuzde(1, False) }}</td>
+        <td class="sayi">{% if r.yon is none %}–{% else %}{{ r.yon|yuzde(0, False) }}{% endif %}</td>
+        <td class="sayi">{% if r.naiften_iyi is none %}ölçüt{% else %}{{ r.naiften_iyi|yuzde(0, False) }}{% endif %}</td>
+        <td class="sayi">
+          <div class="en-iyi-cubuk"><span style="width: {{ 90 * r.en_iyi / enbuyuk }}px"></span>{{ r.en_iyi }}</div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+{% endif %}
+{% endblock %}

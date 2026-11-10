@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import rozetler %}
+{% from "_tahmin.html" import tahmin_bolumu %}
+{% block baslik %}{{ s.kod }} raporu · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+<article class="rapor">
+  <header class="rapor-ust">
+    <div>
+      <h1>{{ s.kod }} {{ rozetler(s) }}</h1>
+      <p><b>{{ s.unvan }}</b></p>
+      <p>{{ s.sektor }} · Veriler {{ hesap_tarihi }} kapanışına göre</p>
+    </div>
+    <button type="button" class="yazdir-dugme" onclick="window.print()">Yazdır / PDF olarak kaydet</button>
+  </header>
+
+  <section class="rapor-sayilar">
+    <div><span>Son fiyat</span><b>{{ s.son_kapanis|fiyat }} TL</b></div>
+    <div><span>Son gün</span><b class="{{ s.gunluk_degisim|yon }}">{{ s.gunluk_degisim|yuzde(2) }}</b></div>
+    <div><span>1 yıllık getiri</span><b class="{{ s.getiri_1y|yon }}">{{ s.getiri_1y|yuzde }}</b></div>
+    <div><span>Oynaklık (1 yıl)</span><b>{{ s.volatilite_1y|yuzde(1, False) }}</b></div>
+    <div><span>Beta</span><b>{{ s.beta_1y|fiyat }}</b></div>
+  </section>
+
+  <section class="grafik-kutu">
+    <h2>Son 1 yıl fiyat</h2>
+    <div id="fiyat-grafik" class="grafik grafik-kucuk" data-kod="{{ s.kod }}"></div>
+  </section>
+
+  <section class="getiri-alan">
+    <h2>Dönem getirileri</h2>
+    <div class="tablo-kaydir">
+    <table class="getiri-tablo">
+      <thead><tr><th></th>{% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<th scope="col">{{ DONEMLER[d] }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        <tr class="serit-satir">
+          <th scope="row">{{ s.kod }}</th>
+          {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+            {% set g = s['getiri_' ~ d] %}
+            <td class="hucre {{ g|yon }}{% if yogunluk(g, d)|float > 0.55 %} koyu{% endif %}" style="--y: {{ yogunluk(g, d) }}">{{ g|yuzde }}</td>
+          {% endfor %}
+        </tr>
+        <tr class="endeks-satir">
+          <th scope="row">BIST 100</th>
+          {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<td>{{ xu100['getiri_' ~ d]|yuzde }}</td>{% endfor %}
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="not">Son 1 yılda en büyük düşüş {{ s.max_dusus_1y|yuzde }}. Getiriler nominal TL getirisidir;
+    fiyatlar bölünmelere göre düzeltilmiş, temettüler dahil edilmemiştir.</p>
+  </section>
+
+  {{ tahmin_bolumu(s, tahmin, rapor=True) }}
+
+  {% if benzerler %}
+  <section class="getiri-alan">
+    <h2>Benzer hareket eden hisseler <small>son 1 yıl, korelasyon</small></h2>
+    <p>{% for b in benzerler %}<b>{{ b.kod }}</b> ({{ b.korelasyon|fiyat }}){% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </section>
+  {% endif %}
+
+  <p class="rapor-imza">Bu rapor Borsa Pusulası tarafından {{ olusturma }} tarihinde otomatik oluşturulmuştur.
+  Bir bitirme projesidir; içerdiği analizler ve tahminler yatırım tavsiyesi değildir.</p>
+</article>
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>
+  grafikKur("fiyat-grafik", {kucuk: true, varsayilan: "1y"});
+  {% if tahmin %}tahminGrafikKur("tahmin-grafik");{% endif %}
+</script>
+{% endblock %}

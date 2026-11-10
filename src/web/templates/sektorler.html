@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block baslik %}Sektörler · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+{% if not hafta5 %}{% include "_analiz_eksik.html" %}{% else %}
+<h1 class="sayfa-baslik">Sektörler <small>{{ sektorler|length }} sektör</small></h1>
+<p class="giris">Her hücre, sektördeki hisselerin o dönemdeki <b>medyan</b> getirisidir: sektördeki tipik
+hissenin ne kadar kazandırdığını gösterir. Bir sektöre tıklayarak sektör endeksini ve hisselerini görebilirsiniz.</p>
+
+<div class="tablo-kap">
+<table class="sektor-isi" id="sektor-isi">
+  <thead>
+    <tr>
+      <th>Sektör</th>
+      <th class="sayi">Hisse</th>
+      {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<th class="donem-baslik">{{ DONEMLER[d] }}</th>{% endfor %}
+      <th class="sayi" title="Son 1 yılın medyan yıllık volatilitesi">Oynaklık</th>
+      <th class="sayi" title="BIST 100'e duyarlılık (medyan)">Beta</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="endeks-satiri">
+      <th scope="row">BIST 100 <span class="sektor-ad">piyasa değeri ağırlıklı endeks</span></th>
+      <td class="sayi">100</td>
+      {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+        {% set g = xu100['getiri_' ~ d] %}<td class="sayi {{ g|yon }}">{{ g|yuzde }}</td>
+      {% endfor %}
+      <td class="sayi">{{ xu100.volatilite_1y|yuzde(0, False) }}</td>
+      <td class="sayi">1,00</td>
+    </tr>
+    {% for s in sektorler %}
+    <tr>
+      <th scope="row"><a href="/sektor/{{ s.sektor|urlencode }}">{{ s.sektor }}</a></th>
+      <td class="sayi">{{ s.hisse_sayisi }}</td>
+      {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+        {% set g = s['getiri_' ~ d] %}
+        <td class="hucre {{ g|yon }}{% if yogunluk(g, d)|float > 0.55 %} koyu{% endif %}" style="--y: {{ yogunluk(g, d) }}">{{ g|yuzde }}</td>
+      {% endfor %}
+      <td class="sayi">{{ s.volatilite_1y|yuzde(0, False) }}</td>
+      <td class="sayi">{{ s.beta_1y|fiyat }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="not">5 ve 10 yıllık değerler sadece o kadar süredir işlem gören hisselerden hesaplanır; bu yüzden
+bazı sektörlerde az sayıda hisseye dayanır. Getiriler nominal TL getirisidir.</p>
+{% endif %}
+{% endblock %}

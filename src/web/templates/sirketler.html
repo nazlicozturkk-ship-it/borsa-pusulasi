@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import serit, degisim, rozetler %}
+{% block baslik %}Şirketler · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+<h1 class="sayfa-baslik">Şirketler <small id="sayac">{{ hisseler|length }} hisse</small></h1>
+
+<form class="filtreler" onsubmit="return false">
+  <label>Ara<input id="f-ara" type="search" placeholder="Kod veya şirket adı"></label>
+  <label>Sektör
+    <select id="f-sektor">
+      <option value="">Tümü</option>
+      {% for s in sektor_listesi %}<option>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Endeks
+    <select id="f-endeks">
+      <option value="">Tüm hisseler</option>
+      <option value="bist30">BIST 30</option>
+      <option value="bist100">BIST 100</option>
+    </select>
+  </label>
+</form>
+
+<div class="tablo-kap">
+<table class="hisse-tablo" id="hisse-tablo">
+  <thead>
+    <tr>
+      <th data-sirala="kod" data-tur="metin">Kod</th>
+      <th class="genis">Şirket</th>
+      <th data-sirala="fiyat" class="sayi">Son fiyat</th>
+      <th data-sirala="gun" class="sayi">Günlük</th>
+      <th class="serit-baslik">
+        <div class="serit-etiketler">
+          {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<button type="button" data-sirala="{{ d }}" title="{{ DONEMLER[d] }} getirisine göre sırala">{{ DONEMLER[d] }}</button>{% endfor %}
+        </div>
+      </th>
+      <th data-sirala="vol" class="sayi" title="Son 1 yılın yıllık volatilitesi">Oynaklık</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in hisseler %}
+    <tr data-kod="{{ s.kod }}" data-ad="{{ s.unvan }}" data-sektor="{{ s.sektor }}"
+        data-bist30="{{ s.bist30|int }}" data-bist100="{{ s.bist100|int }}"
+        data-fiyat="{{ s.son_kapanis }}" data-gun="{{ s.gunluk_degisim }}" data-vol="{{ s.volatilite_1y }}"
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}data-{{ d }}="{{ s['getiri_' ~ d] }}" {% endfor %}>
+      <td><a class="kod" href="/sirket/{{ s.kod }}">{{ s.kod }}</a></td>
+      <td class="genis"><a href="/sirket/{{ s.kod }}">{{ s.unvan }}</a><span class="sektor-ad">{{ s.sektor }}</span></td>
+      <td class="sayi">{{ s.son_kapanis|fiyat }}</td>
+      <td class="sayi">{{ degisim(s.gunluk_degisim) }}</td>
+      <td>{{ serit(s, etiket=False) }}</td>
+      <td class="sayi">{{ s.volatilite_1y|yuzde(0, False) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+<p id="sonuc-yok" class="bos-sonuc" hidden>Bu filtrelere uyan hisse yok. Arama metnini kısaltmayı veya sektör filtresini kaldırmayı deneyin.</p>
+{% endblock %}
+
+{% block betik %}<script>tabloKur();</script>{% endblock %}

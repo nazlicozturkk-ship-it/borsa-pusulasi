@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block baslik %}Borsa Pusulası{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ statik('style.css') }}">
+  {% block bas %}{% endblock %}
+</head>
+<body>
+  <header class="ust">
+    <div class="ust-ic">
+      <a class="logo" href="/">
+        {# Pusula logosu: altın kuzey iğnesi yükselişi, soluk güney iğnesi düşüşü simgeler #}
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" fill="none" style="stroke: var(--logo-kuzey)" stroke-width="1.6" opacity=".55"/>
+          <path d="M16 4.5 L19.2 16 L16 14.4 L12.8 16 Z" style="fill: var(--logo-kuzey)"/>
+          <path d="M16 27.5 L12.8 16 L16 17.6 L19.2 16 Z" style="fill: var(--logo-guney)" opacity=".8"/>
+          <circle cx="16" cy="16" r="1.6" style="fill: var(--panel)"/>
+        </svg>
+        <span>Borsa Pusulası</span>
+      </a>
+      <nav class="menu">
+        <a href="/" {% if request.url.path == '/' %}aria-current="page"{% endif %}>Ana sayfa</a>
+        <a href="/sirketler" {% if request.url.path.startswith('/sirket') %}aria-current="page"{% endif %}>Şirketler</a>
+        <a href="/sektorler" {% if request.url.path.startswith('/sektor') %}aria-current="page"{% endif %}>Sektörler</a>
+        <a href="/karsilastir" {% if request.url.path.startswith('/karsilastir') %}aria-current="page"{% endif %}>Karşılaştır</a>
+        <a href="/harita" {% if request.url.path.startswith('/harita') %}aria-current="page"{% endif %}>Risk haritası</a>
+        <a href="/modeller" {% if request.url.path.startswith('/modeller') %}aria-current="page"{% endif %}>Modeller</a>
+      </nav>
+      <div class="arama" role="search">
+        <input id="arama-kutusu" type="search" placeholder="Şirket ara: THYAO, Aselsan…" autocomplete="off" aria-label="Şirket ara">
+        <ul id="arama-sonuc" class="arama-sonuc" hidden></ul>
+      </div>
+    </div>
+  </header>
+
+  <main class="sayfa">
+    {% if not veri_var %}
+      <section class="bos">
+        <h1>Henüz gösterilecek analiz yok</h1>
+        <p>Önce verileri indirip analizi çalıştırın:</p>
+        <ol>
+          <li><b>2_fiyat_verisi.bat</b> ile fiyat verilerini indirin.</li>
+          <li><b>3_analiz.bat</b> ile getirileri hesaplayın.</li>
+          <li>Bu sayfayı yenileyin.</li>
+        </ol>
+      </section>
+    {% else %}
+      {% block icerik %}{% endblock %}
+    {% endif %}
+  </main>
+
+  <footer class="alt">
+    <p>{% if hesap_tarihi %}Veriler {{ hesap_tarihi }} kapanışına göredir. {% endif %}Fiyatlar bedelsiz sermaye artırımlarına göre düzeltilmiştir, temettüler dahil değildir.</p>
+    <p>Bu uygulama bir bitirme projesidir. Gösterilen analizler ve tahminler yatırım tavsiyesi değildir.</p>
+  </footer>
+
+  <script src="{{ statik('app.js') }}"></script>
+  {% block betik %}{% endblock %}
+</body>
+</html>

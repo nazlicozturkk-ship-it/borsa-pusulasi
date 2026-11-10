@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block baslik %}Bulunamadı · Borsa Pusulası{% endblock %}
+{% block icerik %}
+<section class="bos">
+  {% if tur == "sektör" %}
+  <h1>"{{ kod }}" adlı bir sektör bulunamadı</h1>
+  <p>Sektör adı değişmiş veya sektörde analiz için yeterli hisse kalmamış olabilir.</p>
+  <p><a href="/sektorler">Tüm sektörleri görün</a></p>
+  {% else %}
+  <h1>{{ kod }} kodlu bir hisse bulunamadı</h1>
+  <p>Kod yanlış yazılmış olabilir ya da hisse son 30 günde işlem görmediği için analize alınmamış olabilir.</p>
+  <p><a href="/sirketler">Tüm şirketlerin listesinde arayın</a></p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+/venv
+/data
+/logs
+/docs
+__pycache__
+*.bat
+*.ipynb
+/.env
+/requirements-tam.txt

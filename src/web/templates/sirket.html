@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import serit, degisim, rozetler %}
+{% from "_tahmin.html" import tahmin_bolumu %}
+{% block baslik %}{{ s.kod }} · {{ s.unvan }}{% endblock %}
+
+{% block icerik %}
+<section class="sirket-ust">
+  <div>
+    <h1 class="sirket-kod">{{ s.kod }} {{ rozetler(s) }}</h1>
+    <p class="sirket-ad">{{ s.unvan }}</p>
+    <p class="sirket-sektor"><a href="/sirketler?sektor={{ s.sektor|urlencode }}">{{ s.sektor }}</a></p>
+  </div>
+  <div class="sirket-fiyat">
+    <p class="fiyat-buyuk">{{ s.son_kapanis|fiyat }} <small>TL</small></p>
+    <p>{{ degisim(s.gunluk_degisim) }} <span class="soluk">son işlem günü</span></p>
+    <p class="karsilastir-dugme">
+      <a href="/karsilastir?k={{ s.kod }}{% for b in benzerler[:2] %},{{ b.kod }}{% endfor %}">Benzerleriyle karşılaştır</a>
+      <a href="/rapor/{{ s.kod }}" class="ikincil">Rapor</a>
+    </p>
+  </div>
+</section>
+
+<section class="grafik-kutu buyuk-grafik">
+  <div class="grafik-arac">
+    <div class="aralik" data-grafik="fiyat-grafik" role="group" aria-label="Grafik dönemi">
+      {% for d, ad in [('1a','1A'),('3a','3A'),('6a','6A'),('ytd','YB'),('1y','1Y'),('5y','5Y'),('10y','10Y')] %}
+        <button type="button" data-donem="{{ d }}" {% if d == '1y' %}aria-pressed="true"{% endif %}>{{ ad }}</button>
+      {% endfor %}
+    </div>
+    <div class="grafik-secenek">
+      <label><input type="checkbox" id="karsilastir"> BIST 100 ile karşılaştır</label>
+      <label><input type="checkbox" id="mum"> Mum grafiği</label>
+    </div>
+  </div>
+  <div id="fiyat-grafik" class="grafik" data-kod="{{ s.kod }}"></div>
+  <p class="not" id="karsilastir-not" hidden>Karşılaştırmada iki seri de dönem başında 0 kabul edilip yüzde değişim olarak gösterilir.</p>
+</section>
+
+{{ tahmin_bolumu(s, tahmin) }}
+
+<section class="getiri-alan">
+  <h2>Dönem getirileri</h2>
+  <div class="tablo-kaydir">
+  <table class="getiri-tablo">
+    <thead>
+      <tr><th></th>{% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<th scope="col">{{ DONEMLER[d] }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>
+      <tr class="serit-satir">
+        <th scope="row">{{ s.kod }}</th>
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+          {% set g = s['getiri_' ~ d] %}
+          <td class="hucre {{ g|yon }}{% if yogunluk(g, d)|float > 0.55 %} koyu{% endif %}" style="--y: {{ yogunluk(g, d) }}">{{ g|yuzde }}</td>
+        {% endfor %}
+      </tr>
+      <tr class="endeks-satir">
+        <th scope="row">BIST 100</th>
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<td>{{ xu100['getiri_' ~ d]|yuzde }}</td>{% endfor %}
+      </tr>
+      <tr class="fark-satir">
+        <th scope="row" title="Hissenin getirisi eksi BIST 100 getirisi, yüzde puan">Fark (puan)</th>
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+          {% set f = s['fark_' ~ d] %}<td class="{{ f|yon }}">{{ f|yuzde }}</td>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  {% if s.yillik_5y == s.yillik_5y or s.yillik_10y == s.yillik_10y %}
+  <p class="not">Yıllık ortalama (bileşik): 5 yılda {{ s.yillik_5y|yuzde }}, 10 yılda {{ s.yillik_10y|yuzde }}. Getiriler nominal TL getirisidir, enflasyondan arındırılmamıştır.</p>
+  {% endif %}
+  {% if s.getiri_10y != s.getiri_10y %}
+  <p class="not">Hisse {{ s.ilk_tarih }} tarihinden beri işlem gördüğü için daha uzun dönemlerin getirisi hesaplanamaz.</p>
+  {% endif %}
+</section>
+
+<section class="risk-alan">
+  <h2>Risk <small>son 1 yıl</small></h2>
+  <dl class="risk-liste">
+    <div>
+      <dt>Oynaklık</dt>
+      <dd>{{ s.volatilite_1y|yuzde(1, False) }}</dd>
+      <p>Fiyatın yıllık ne kadar dalgalandığı. BIST 100 için {{ xu100.volatilite_1y|yuzde(1, False) }}.</p>
+    </div>
+    <div>
+      <dt>En büyük düşüş</dt>
+      <dd class="az">{{ s.max_dusus_1y|yuzde }}</dd>
+      <p>Son bir yılda zirveden görülen en büyük kayıp.</p>
+    </div>
+    <div>
+      <dt>Beta</dt>
+      <dd>{{ s.beta_1y|fiyat }}</dd>
+      <p>{% if s.beta_1y == s.beta_1y %}BIST 100 %1 hareket ettiğinde hisse ortalama %{{ s.beta_1y|fiyat }} hareket etmiş.{% else %}Hesaplamak için yeterli işlem günü yok.{% endif %}</p>
+    </div>
+  </dl>
+  {% if s.kalite == 'kontrol_et' %}
+  <p class="uyari">Bu hissenin fiyat verisinde olağan dışı hareketler veya eksik günler var. Sonuçları yorumlarken dikkatli olun.</p>
+  {% endif %}
+</section>
+
+{% if benzerler %}
+<section class="getiri-alan">
+  <h2>Benzer hareket eden hisseler <small>son 1 yıl</small></h2>
+  <ol class="sira-liste benzer-liste">
+    {% for b in benzerler %}
+    <li>
+      <a href="/sirket/{{ b.kod }}">
+        <span class="kod">{{ b.kod }}</span>
+        <span class="unvan">{{ b.unvan }}</span>
+        <span class="benzerlik" title="Günlük getirilerin korelasyonu">
+          <span class="benzerlik-cubuk"><span style="width: {{ ([b.korelasyon, 0]|max) * 100 }}%"></span></span>
+          {{ b.korelasyon|fiyat }}
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+  <p class="not">Benzerlik, iki hissenin günlük getirilerinin korelasyonudur (−1 ile 1 arası). 1'e yaklaştıkça
+  hisseler çoğu gün aynı yönde hareket etmiştir.
+  <a href="/karsilastir?k={{ s.kod }}{% for b in benzerler[:4] %},{{ b.kod }}{% endfor %}">Hepsini karşılaştır</a></p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>
+  grafikKur("fiyat-grafik", {varsayilan: "1y", karsilastir: "karsilastir", mum: "mum"});
+  {% if tahmin %}tahminGrafikKur("tahmin-grafik");{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block baslik %}Karşılaştır · Borsa Pusulası{% endblock %}
+
+{% block icerik %}
+<h1 class="sayfa-baslik">Hisse karşılaştırma</h1>
+
+<form class="secici" id="secici" action="/karsilastir" method="get">
+  <ul class="cipler" id="cipler">
+    {% for kod in k.kodlar %}
+    <li class="cip" style="--seri: var(--seri{{ loop.index0 }})">
+      <span>{{ kod }}</span>
+      <button type="button" data-kaldir="{{ kod }}" aria-label="{{ kod }} hissesini çıkar">×</button>
+      <input type="hidden" name="k" value="{{ kod }}">
+    </li>
+    {% endfor %}
+  </ul>
+  {% if k.kodlar|length < 5 %}
+  <div class="arama ekle">
+    <input id="ekle-kutusu" type="search" placeholder="Hisse ekle (en fazla 5)" autocomplete="off" aria-label="Karşılaştırmaya hisse ekle">
+    <ul id="ekle-sonuc" class="arama-sonuc" hidden></ul>
+  </div>
+  {% endif %}
+</form>
+
+{% if not k.kodlar %}
+<section class="bos">
+  <h2>Karşılaştırmak istediğiniz hisseleri ekleyin</h2>
+  <p>Yukarıdaki kutuya kod veya şirket adı yazın. Örnekler:</p>
+  <ul class="ornekler">
+    <li><a href="/karsilastir?k=THYAO,PGSUS,TAVHL">Havacılık: THYAO, PGSUS, TAVHL</a></li>
+    <li><a href="/karsilastir?k=GARAN,AKBNK,YKBNK,ISCTR">Bankalar: GARAN, AKBNK, YKBNK, ISCTR</a></li>
+    <li><a href="/karsilastir?k=ASELS,TUPRS,BIMAS,KCHOL">Farklı sektörler: ASELS, TUPRS, BIMAS, KCHOL</a></li>
+  </ul>
+</section>
+{% else %}
+
+<section class="grafik-kutu buyuk-grafik">
+  <div class="grafik-arac">
+    <div class="aralik" data-grafik="karsilastirma-grafik" role="group" aria-label="Grafik dönemi">
+      {% for d, ad in [('1a','1A'),('3a','3A'),('6a','6A'),('ytd','YB'),('1y','1Y'),('5y','5Y'),('10y','10Y')] %}
+        <button type="button" data-donem="{{ d }}" {% if d == '1y' %}aria-pressed="true"{% endif %}>{{ ad }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="karsilastirma-grafik" class="grafik" data-kodlar="{{ k.kodlar|join(',') }}"></div>
+  <p class="not">Bütün seriler dönem başında 0 kabul edilir, çizgiler o tarihten itibaren yüzde değişimi gösterir.
+  Dönem başında henüz işlem görmeyen hisse, ilk işlem gününden başlar.</p>
+</section>
+
+<section class="getiri-alan">
+  <h2>Getiri ve risk</h2>
+  <div class="tablo-kaydir">
+  <table class="karsilastirma-tablo">
+    <thead>
+      <tr>
+        <th></th>
+        {% for s in k.satirlar %}<th scope="col"><a href="/sirket/{{ s.kod }}" style="--seri: var(--seri{{ loop.index0 }})" class="seri-kod">{{ s.kod }}</a></th>{% endfor %}
+        <th scope="col" class="soluk-baslik">BIST 100</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Son fiyat</th>{% for s in k.satirlar %}<td>{{ s.son_kapanis|fiyat }}</td>{% endfor %}<td class="soluk">{{ xu100.son_kapanis|fiyat }}</td></tr>
+      <tr><th scope="row">Sektör</th>{% for s in k.satirlar %}<td class="kucuk-yazi">{{ s.sektor }}</td>{% endfor %}<td></td></tr>
+      {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+      {% set alan = 'getiri_' ~ d %}
+      <tr class="getiri-satir">
+        <th scope="row">{{ DONEMLER[d] }}</th>
+        {% for s in k.satirlar %}
+          {% set g = s[alan] %}
+          <td class="{{ g|yon }}{% if k.en_iyi.get(d) == s.kod %} en-iyi{% endif %}">{{ g|yuzde }}</td>
+        {% endfor %}
+        <td class="soluk">{{ xu100[alan]|yuzde }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="ayrac"><th scope="row">Oynaklık (1 yıl)</th>{% for s in k.satirlar %}<td>{{ s.volatilite_1y|yuzde(1, False) }}</td>{% endfor %}<td class="soluk">{{ xu100.volatilite_1y|yuzde(1, False) }}</td></tr>
+      <tr><th scope="row">En büyük düşüş (1 yıl)</th>{% for s in k.satirlar %}<td class="az">{{ s.max_dusus_1y|yuzde }}</td>{% endfor %}<td class="soluk">{{ xu100.max_dusus_1y|yuzde }}</td></tr>
+      <tr><th scope="row">Beta</th>{% for s in k.satirlar %}<td>{{ s.beta_1y|fiyat }}</td>{% endfor %}<td class="soluk">1,00</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="not">Her dönemde en yüksek getiri kalın yazılmıştır.</p>
+</section>
+
+{% if k.korelasyon %}
+<section class="getiri-alan">
+  <h2>Birlikte hareket <small>son 1 yıl, günlük getirilerin korelasyonu</small></h2>
+  <div class="tablo-kaydir">
+  <table class="korelasyon-tablo">
+    <thead><tr><th></th>{% for kod in k.kodlar %}<th scope="col">{{ kod }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for satir in k.korelasyon %}
+      {% set i = loop.index0 %}
+      <tr>
+        <th scope="row">{{ k.kodlar[i] }}</th>
+        {% for x in satir %}
+          {% if loop.index0 == i %}<td class="kosegen">–</td>
+          {% elif x is none %}<td class="soluk">yetersiz veri</td>
+          {% else %}<td class="hucre art{% if x > 0.65 %} koyu{% endif %}" style="--y: {{ [x, 0]|max * 0.9 }}">{{ x|fiyat }}</td>{% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="not">1'e yakın değer iki hissenin çoğu gün aynı yönde hareket ettiğini, 0'a yakın değer aralarında
+  belirgin bir ilişki olmadığını gösterir. Birbirine çok benzeyen hisseleri birlikte tutmak riski pek azaltmaz.</p>
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>
+  karsilastirmaSeciciKur();
+  {% if k.kodlar %}
+  cokluGrafikKur("karsilastirma-grafik", async () => {
+    const kodlar = document.getElementById("karsilastirma-grafik").dataset.kodlar.split(",");
+    const veriler = await Promise.all(kodlar.map((k) => fetch(`/api/fiyat/${k}`).then((r) => r.json())));
+    const seriler = veriler.map((v) => ({ ad: v.kod, tarih: v.tarih, deger: v.kapanis }));
+    seriler.push({ ad: "BIST 100", tarih: veriler[0].endeks.tarih, deger: veriler[0].endeks.kapanis });
+    return seriler;
+  });
+  {% endif %}
+</script>
+{% endblock %}

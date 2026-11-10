@@ -1,0 +1,18 @@
+{# Getiri şeridi: her dönemin getirisi, renk yoğunluğu getirinin büyüklüğünü gösterir #}
+{% macro serit(satir, donemler=('1a','3a','6a','ytd','1y','5y','10y'), etiket=True, buyuk=False) %}
+<div class="serit{% if buyuk %} serit-buyuk{% endif %}">
+  {% for d in donemler %}
+    {% set g = satir['getiri_' ~ d] %}
+    <div class="hucre {{ g|yon }}{% if yogunluk(g, d)|float > 0.55 %} koyu{% endif %}" style="--y: {{ yogunluk(g, d) }}"{% if not etiket %} title="{{ DONEMLER[d] }}"{% endif %}>
+      {% if etiket %}<span class="hucre-ad">{{ DONEMLER[d] }}</span>{% endif %}
+      <span class="hucre-deger">{{ g|yuzde(0 if not buyuk else 1) }}</span>
+    </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro degisim(x) %}<span class="degisim {{ x|yon }}">{{ x|yuzde(2) }}</span>{% endmacro %}
+
+{% macro rozetler(s) %}
+  {% if s.bist30 %}<span class="rozet">BIST 30</span>{% elif s.bist100 %}<span class="rozet">BIST 100</span>{% endif %}
+{% endmacro %}

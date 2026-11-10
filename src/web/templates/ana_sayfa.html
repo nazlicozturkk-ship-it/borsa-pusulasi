@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import serit, degisim, rozetler %}
+
+{% block icerik %}
+<section class="endeks-alan">
+  <div class="endeks-bilgi">
+    <h1 class="endeks-ad">BIST 100</h1>
+    <p class="endeks-deger">{{ xu100.son_kapanis|fiyat }} {{ degisim(xu100.gunluk_degisim) }}</p>
+    <p class="endeks-alt">BIST 30: <b>{{ xu030.son_kapanis|fiyat }}</b> {{ degisim(xu030.gunluk_degisim) }}</p>
+  </div>
+  <div class="grafik-kutu">
+    <div class="aralik" data-grafik="endeks-grafik" role="group" aria-label="Grafik dönemi">
+      {% for d, ad in [('1a','1A'),('3a','3A'),('6a','6A'),('1y','1Y'),('5y','5Y'),('10y','10Y')] %}
+        <button type="button" data-donem="{{ d }}" {% if d == '1y' %}aria-pressed="true"{% endif %}>{{ ad }}</button>
+      {% endfor %}
+    </div>
+    <div id="endeks-grafik" class="grafik grafik-kucuk" data-kod="XU100"></div>
+  </div>
+  <div class="endeks-serit">
+    {{ serit(xu100, buyuk=True) }}
+  </div>
+  {# İstanbul silueti: kubbeler, minareler ve kule (sadece süs, ekran okuyuculardan gizli) #}
+  <svg class="siluet" viewBox="0 0 1200 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <g fill="currentColor">
+      <rect x="0" y="70" width="140" height="20"/><rect x="20" y="62" width="40" height="28"/><rect x="90" y="66" width="30" height="24"/>
+      <rect x="226" y="14" width="5" height="76"/><path d="M224 16 L228.5 2 L233 16 Z"/>
+      <rect x="434" y="14" width="5" height="76"/><path d="M432 16 L436.5 2 L441 16 Z"/>
+      <rect x="252" y="30" width="4" height="60"/><path d="M250 32 L254 20 L258 32 Z"/>
+      <rect x="410" y="30" width="4" height="60"/><path d="M408 32 L412 20 L416 32 Z"/>
+      <path d="M262 90 V62 Q262 56 270 56 H396 Q404 56 404 62 V90 Z"/>
+      <path d="M280 60 Q333 6 386 60 Z"/><rect x="331" y="22" width="4" height="10"/>
+      <path d="M262 64 Q281 44 300 64 Z"/><path d="M366 64 Q385 44 404 64 Z"/>
+      <rect x="470" y="72" width="180" height="18"/><rect x="500" y="64" width="50" height="26"/><rect x="590" y="68" width="40" height="22"/>
+      <rect x="690" y="34" width="24" height="56"/><path d="M684 36 L702 6 L720 36 Z"/><rect x="686" y="34" width="32" height="4"/>
+      <rect x="740" y="74" width="120" height="16"/><rect x="760" y="66" width="36" height="24"/>
+      <rect x="884" y="24" width="4" height="66"/><path d="M882 26 L886 12 L890 26 Z"/>
+      <rect x="1046" y="24" width="4" height="66"/><path d="M1044 26 L1048 12 L1052 26 Z"/>
+      <path d="M896 90 V66 Q896 62 902 62 H1032 Q1038 62 1038 66 V90 Z"/>
+      <path d="M918 64 Q967 18 1016 64 Z"/><rect x="965" y="32" width="4" height="9"/>
+      <path d="M900 68 Q915 52 930 68 Z"/><path d="M1004 68 Q1019 52 1034 68 Z"/>
+      <rect x="1070" y="72" width="130" height="18"/><rect x="1110" y="62" width="34" height="28"/>
+    </g>
+    <path class="ay" fill="currentColor" d="M1150 14 a13 13 0 1 0 9 22 a10 10 0 1 1 -9 -22 Z"/>
+  </svg>
+</section>
+
+<section class="genislik" aria-label="Son işlem günü">
+  {% set toplam = genislik.yukselen + genislik.dusen + genislik.degismeyen %}
+  <p><b class="art">{{ genislik.yukselen }}</b> hisse yükseldi, <b class="az">{{ genislik.dusen }}</b> hisse düştü, {{ genislik.degismeyen }} hisse değişmedi.</p>
+  {% if toplam %}
+  <div class="genislik-cubuk" aria-hidden="true">
+    <span class="art-bg" style="width: {{ 100 * genislik.yukselen / toplam }}%"></span>
+    <span class="notr-bg" style="width: {{ 100 * genislik.degismeyen / toplam }}%"></span>
+    <span class="az-bg" style="width: {{ 100 * genislik.dusen / toplam }}%"></span>
+  </div>
+  {% endif %}
+</section>
+
+{# Dönem sekmeleri: bütün dönemlerin listeleri sayfada hazır durur, düğmeye basınca
+   sadece ilgili alan gösterilir (sayfa yeniden yüklenmez). #}
+<div class="sekmeler" role="tablist" aria-label="Sıralama dönemi" id="donem-sekmeleri">
+  {% for d in donemler %}
+    <button type="button" role="tab" id="sekme-{{ d }}" data-donem="{{ d }}" aria-controls="donem-{{ d }}"
+            aria-selected="{{ 'true' if d == donem else 'false' }}" {% if d != donem %}tabindex="-1"{% endif %}>{{ DONEMLER[d] }}</button>
+  {% endfor %}
+</div>
+
+{% for d, v in donemler.items() %}
+<div class="donem-paneli" id="donem-{{ d }}" role="tabpanel" aria-labelledby="sekme-{{ d }}" {% if d != donem %}hidden{% endif %}>
+  <div class="iki-kolon">
+    {% for baslik, liste in [('En çok kazandıranlar', v.kazandiran), ('En çok kaybettirenler', v.kaybettiren)] %}
+    <section class="liste-kutu {{ 'kazanc' if loop.first else 'kayip' }}">
+      <h2>{{ baslik }} <small>{{ DONEMLER[d]|lower }}</small></h2>
+      <ol class="sira-liste">
+        {% for s in liste %}
+        <li>
+          <a href="/sirket/{{ s.kod }}">
+            <span class="kod">{{ s.kod }}</span>
+            <span class="unvan">{{ s.unvan }}</span>
+            <span class="getiri {{ s['getiri_' ~ d]|yon }}">{{ s['getiri_' ~ d]|yuzde }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+    {% endfor %}
+  </div>
+
+  <section class="sektor-kutu">
+    <h2>Sektörler <small>{{ DONEMLER[d]|lower }}, medyan hisse getirisi</small></h2>
+    {% set enbuyuk = (v.sektorler|map(attribute='medyan')|map('abs')|max) if v.sektorler else 1 %}
+    <table class="sektor-tablo">
+      <tbody>
+        {% for s in v.sektorler %}
+        <tr>
+          <th scope="row"><a class="sade" href="/sektor/{{ s.sektor|urlencode }}">{{ s.sektor }}</a></th>
+          <td class="sayi">{{ s.adet }} hisse</td>
+          <td class="cubuk-hucre">
+            <div class="cift-cubuk">
+              <span class="{{ s.medyan|yon }}-bg {% if s.medyan < 0 %}sol{% else %}sag{% endif %}" style="width: {{ 50 * (s.medyan|abs) / enbuyuk }}%"></span>
+            </div>
+          </td>
+          <td class="sayi {{ s.medyan|yon }}">{{ s.medyan|yuzde }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  <p class="not"><a href="/sektorler">Tüm dönemlerde sektör karşılaştırması</a> · Ortalama yerine medyan kullanıldı: birkaç hissenin aşırı yükselişi sektörün tamamını olduğundan iyi göstermesin diye.</p>
+  </section>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>grafikKur("endeks-grafik", {kucuk: true, varsayilan: "1y"}); donemSekmeleriKur();</script>
+{% endblock %}

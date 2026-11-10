@@ -1,0 +1,38 @@
+# BIST Getiri Tahmin Projesi - Python kütüphaneleri (bilgisayardaki tam kurulum)
+# Kurulum: kurulum.bat dosyasına çift tıklayın
+
+# Veri çekme
+borsapy
+yfinance
+requests
+
+# Veri işleme ve analiz
+pandas
+numpy
+statsmodels
+scikit-learn
+
+# Veritabanı
+sqlalchemy
+psycopg2-binary
+
+# Web uygulaması
+fastapi
+uvicorn
+jinja2
+
+# Grafikler
+plotly
+
+# Zamanlanmış görevler ve raporlar
+apscheduler
+openpyxl
+
+# Tahmin modelleri (ileriki haftalar)
+xgboost
+lightgbm
+prophet
+tensorflow
+
+# Notebook
+jupyter

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "_makrolar.html" import serit, degisim, rozetler %}
+{% block baslik %}{{ sektor.sektor }} · Sektörler{% endblock %}
+
+{% block icerik %}
+<section class="sirket-ust">
+  <div>
+    <p class="ust-baglanti"><a href="/sektorler">Sektörler</a></p>
+    <h1 class="sektor-baslik">{{ sektor.sektor }}</h1>
+    <p class="sirket-ad">{{ sektor.hisse_sayisi }} hisse · son 1 yılda medyan getiri
+      <b class="{{ sektor.getiri_1y|yon }}">{{ sektor.getiri_1y|yuzde }}</b></p>
+  </div>
+</section>
+
+<section class="grafik-kutu buyuk-grafik">
+  <div class="grafik-arac">
+    <div class="aralik" data-grafik="sektor-grafik" role="group" aria-label="Grafik dönemi">
+      {% for d, ad in [('1a','1A'),('3a','3A'),('6a','6A'),('ytd','YB'),('1y','1Y'),('5y','5Y'),('10y','10Y')] %}
+        <button type="button" data-donem="{{ d }}" {% if d == '1y' %}aria-pressed="true"{% endif %}>{{ ad }}</button>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="sektor-grafik" class="grafik" data-sektor="{{ sektor.sektor }}"></div>
+  <p class="not">Sektör endeksi eşit ağırlıklıdır: her gün sektördeki hisselerin günlük getirilerinin ortalaması
+  alınır. "Tüm hisseler" aynı yöntemle bütün borsa için hesaplanır. Seriler dönem başında 0 kabul edilir.</p>
+</section>
+
+<section class="getiri-alan">
+  <h2>Sektörün dönem getirileri <small>medyan hisse</small></h2>
+  <div class="tablo-kaydir">
+  <table class="getiri-tablo">
+    <thead><tr><th></th>{% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<th scope="col">{{ DONEMLER[d] }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      <tr class="serit-satir">
+        <th scope="row">Sektör</th>
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}
+          {% set g = sektor['getiri_' ~ d] %}
+          <td class="hucre {{ g|yon }}{% if yogunluk(g, d)|float > 0.55 %} koyu{% endif %}" style="--y: {{ yogunluk(g, d) }}">{{ g|yuzde }}</td>
+        {% endfor %}
+      </tr>
+      <tr class="endeks-satir">
+        <th scope="row">BIST 100</th>
+        {% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<td>{{ xu100['getiri_' ~ d]|yuzde }}</td>{% endfor %}
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Sektördeki hisseler <small>son 1 yıl getirisine göre</small></h2>
+  <div class="tablo-kap">
+  <table class="hisse-tablo">
+    <thead>
+      <tr>
+        <th>Kod</th><th class="genis">Şirket</th><th class="sayi">Son fiyat</th><th class="sayi">Günlük</th>
+        <th class="serit-baslik"><div class="serit-etiketler">{% for d in ['1a','3a','6a','ytd','1y','5y','10y'] %}<span>{{ DONEMLER[d] }}</span>{% endfor %}</div></th>
+        <th class="sayi">Oynaklık</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in hisseler %}
+      <tr>
+        <td><a class="kod" href="/sirket/{{ s.kod }}">{{ s.kod }}</a></td>
+        <td class="genis"><a href="/sirket/{{ s.kod }}">{{ s.unvan }}</a>{{ rozetler(s) }}</td>
+        <td class="sayi">{{ s.son_kapanis|fiyat }}</td>
+        <td class="sayi">{{ degisim(s.gunluk_degisim) }}</td>
+        <td>{{ serit(s, etiket=False) }}</td>
+        <td class="sayi">{{ s.volatilite_1y|yuzde(0, False) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% if hisseler|length >= 2 %}
+  <p class="not"><a href="/karsilastir?k={{ (hisseler[:5]|map(attribute='kod'))|join(',') }}">Sektörün ilk 5 hissesini karşılaştır</a></p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block betik %}
+<script src="/kutuphane/plotly.min.js" charset="utf-8"></script>
+<script>
+  cokluGrafikKur("sektor-grafik", async () => {
+    const ad = document.getElementById("sektor-grafik").dataset.sektor;
+    const v = await (await fetch(`/api/sektor-endeksi?ad=${encodeURIComponent(ad)}`)).json();
+    return v.seriler;
+  });
+</script>
+{% endblock %}
