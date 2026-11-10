@@ -103,6 +103,7 @@ def _sayfa(request: Request, sablon: str, **icerik) -> HTMLResponse:
     icerik.setdefault("veri_var", not v["getiriler"].empty)
     if icerik["veri_var"]:
         icerik.setdefault("hesap_tarihi", pd.Timestamp(v["getiriler"]["hesap_tarihi"].iloc[0]).strftime("%d.%m.%Y"))
+        icerik.setdefault("son_guncelleme", veri.son_guncelleme())
     return sablonlar.TemplateResponse(request, sablon, icerik)
 
 

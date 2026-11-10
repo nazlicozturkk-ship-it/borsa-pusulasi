@@ -1,0 +1,78 @@
+# Borsa Pusulasi - otomatik veri guncelleme (GitHub Actions)
+#
+# Bilgisayar kapali olsa bile GitHub'in sunucularinda calisir:
+#   - Seans boyunca (10:00-18:30) her 30 dakikada: fiyatlar + getiri/risk analizleri
+#   - Kapanistan sonra (18:50): sirket listesi + fiyatlar + analizler + tahmin modelleri
+# Sonuclar internetteki veritabanina (Neon) aktarilir, Vercel'deki site oradan okur.
+# Saatler UTC'dir; Turkiye saati = UTC + 3. GitHub zamanlanmis isleri birkac dakika gec baslatabilir.
+
+name: Veri guncelleme
+
+on:
+  schedule:
+    - cron: "*/30 7-15 * * 1-5"   # seans ici (10:00-18:30 TR)
+    - cron: "50 15 * * 1-5"       # kapanis sonrasi tam guncelleme (18:50 TR)
+  workflow_dispatch:
+    inputs:
+      tam:
+        description: "Tahmin modelleri de calistirilsin mi?"
+        type: boolean
+        default: true
+
+concurrency:
+  group: veri-guncelleme
+  cancel-in-progress: false
+
+jobs:
+  guncelle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONUTF8: "1"
+      BULUT_VERITABANI_URL: ${{ secrets.BULUT_VERITABANI_URL }}
+      TAM: ${{ github.event.schedule == '50 15 * * 1-5' || (github.event_name == 'workflow_dispatch' && inputs.tam) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-guncelleme.txt
+
+      - name: Kutuphaneleri kur
+        run: pip install -r requirements-guncelleme.txt
+
+      # Islem veritabani (SQLite) bir onceki calismadan geri yuklenir; boylece sadece yeni gunler indirilir
+      - name: Onceki veritabanini geri yukle
+        uses: actions/cache/restore@v4
+        with:
+          path: data/bist.db
+          key: bist-db-${{ github.run_id }}
+          restore-keys: bist-db-
+
+      - name: Sirket listesi
+        if: env.TAM == 'true' || hashFiles('data/bist.db') == ''
+        continue-on-error: true
+        run: python -m src.veri.sirket_listesi
+
+      - name: Fiyatlar
+        run: python -m src.veri.fiyat_verisi
+
+      - name: Getiri ve risk analizleri
+        run: python -m src.analiz.analiz
+
+      - name: Tahmin modelleri
+        if: env.TAM == 'true'
+        run: python -m src.tahmin.calistir
+
+      - name: Internetteki veritabanina aktar
+        run: python -m src.bulut.aktar
+
+      - name: Veritabanini sonraki calisma icin sakla
+        if: always() && hashFiles('data/bist.db') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: data/bist.db
+          key: bist-db-${{ github.run_id }}

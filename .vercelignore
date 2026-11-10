@@ -7,3 +7,6 @@ __pycache__
 *.ipynb
 /.env
 /requirements-tam.txt
+/.github
+/requirements-guncelleme.txt
+/github_actions

@@ -16,6 +16,7 @@ Hızlı kopyalama için PostgreSQL'in COPY komutu kullanılır (satır satır ek
 import io
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 from sqlalchemy import create_engine, inspect, text
@@ -161,6 +162,14 @@ def main() -> int:
     kucuk_tablo_aktar(yerel, bulut, "veri_durumu", orm=True)
     for ad, indeks in ANALIZ_TABLOLARI.items():
         kucuk_tablo_aktar(yerel, bulut, ad, indeks)
+
+    # Sitenin altında görünen "son güncelleme" zamanı (Türkiye saati, UTC+3)
+    simdi = datetime.now(timezone(timedelta(hours=3))).replace(tzinfo=None)
+    with yerel.connect() as y:
+        son_gun = y.execute(text("SELECT MAX(tarih) FROM fiyatlar WHERE kod = 'XU100'")).scalar()
+    with bulut.begin() as b:
+        pd.DataFrame([{"zaman": simdi, "son_fiyat_tarihi": str(son_gun)}]).to_sql(
+            "guncelleme", b, if_exists="replace", index=False)
 
     with bulut.connect() as b:
         boyut = b.execute(text("SELECT pg_size_pretty(pg_database_size(current_database()))")).scalar()

@@ -39,7 +39,8 @@ BitirmeOdevi1/
 ├── 6_web_uygulamasi.bat    Hafta 4: web uygulamasını başlatır (http://127.0.0.1:8000)
 ├── 7_tahmin_deneme.bat     Hafta 6: tahmin modelleri, sadece BIST 30 ile hızlı deneme
 ├── 7_tahmin_modelleri.bat  Hafta 6: tahmin modelleri, tüm hisseler
-├── 8_buluta_aktar.bat      Verileri internetteki veritabanına (Neon) aktarır
+├── 8_buluta_aktar.bat      Bilgisayardaki verileri internetteki veritabanına elle aktarır (isteğe bağlı)
+├── github_actions/         Otomatik güncelleme ayarı (yüklemede .github/workflows içine kopyalanır)
 ├── 9_github_yukle.bat      Projeyi GitHub'a yükler; Vercel siteyi kendiliğinden yeniler
 ├── public/kutuphane/       Grafik kütüphanesi (plotly.js)
 ├── src/
@@ -80,18 +81,19 @@ BitirmeOdevi1/
 6. `6_web_uygulamasi.bat` ile web uygulamasını aç.
 7. İsteğe bağlı: `5_otomatik_guncelleme_ac.bat` ile verilerin hafta içi her akşam kendiliğinden güncellenmesini aç.
 
-## İnternette yayınlama (Vercel)
+## İnternette yayınlama (Vercel) ve otomatik güncelleme
 
 ```
-Bilgisayar (her akşam)                         İnternet
-fiyat → analiz → tahmin → SQLite ──aktar──▶ Neon PostgreSQL ◀── Vercel (site)
+GitHub Actions (seansta her 30 dk)                         İnternet
+fiyat → analiz → (akşam: tahmin) → SQLite ──aktar──▶ Neon PostgreSQL ◀── Vercel (site)
 ```
 
-Ağır işler (veri indirme, analiz, tahmin) bilgisayarda çalışır; Vercel uzun süren işleri
-çalıştıramaz. Sonuçlar `8_buluta_aktar.bat` ile internetteki veritabanına kopyalanır, site
-oradan okur. `.env` dosyası varsa `4_gunluk_guncelleme.bat` bu aktarımı kendisi yapar.
-Vercel'de `DATABASE_URL` değişkeni tanımlıdır; bilgisayarda tanımlı olmadığı için yerel site
-SQLite ile çalışmaya devam eder.
+- Güncelleme GitHub'ın sunucularında çalışır (`.github/workflows/guncelle.yml`); bilgisayar kapalı olabilir.
+- Seans boyunca (10:00–18:30) her 30 dakikada fiyatlar ve getiri/risk analizleri, kapanıştan sonra
+  (18:50) şirket listesi ve tahmin modelleri de yenilenir. Borsa verileri 15 dakika gecikmelidir.
+- İnternetteki veritabanının adresi GitHub'da `BULUT_VERITABANI_URL` gizli değişkeninde,
+  Vercel'de `DATABASE_URL` değişkeninde durur.
+- Bilgisayardaki site SQLite ile çalışmaya devam eder (`4_gunluk_guncelleme.bat`).
 
 ## Haftalık ilerleme
 

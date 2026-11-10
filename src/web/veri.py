@@ -74,7 +74,17 @@ def _yukle() -> dict:
         # Hafta 6 tabloları (tahmin modelleri çalıştırılmadıysa boş gelir)
         "model_performans": tablo_oku("model_performans"),
         "tahmin_ozeti": tablo_oku("tahmin_ozeti"),
+        # İnternetteki sitede: verilerin en son ne zaman güncellendiği (GitHub Actions yazar)
+        "guncelleme": tablo_oku("guncelleme"),
     }
+
+
+def son_guncelleme() -> str | None:
+    """Son otomatik güncellemenin zamanı ('10.11.2026 14:32'); bilgisayardaki sitede None."""
+    g = veri().get("guncelleme")
+    if g is None or g.empty:
+        return None
+    return pd.Timestamp(g["zaman"].iloc[0]).strftime("%d.%m.%Y %H:%M")
 
 
 def veri() -> dict:
