@@ -54,10 +54,6 @@
     {% endif %}
   </main>
 
-  <footer class="alt">
-    <p>{% if son_guncelleme %}Son güncelleme: {{ son_guncelleme }}. Seans boyunca her 30 dakikada yenilenir; borsa verileri 15 dakika gecikmelidir. {% elif hesap_tarihi %}Veriler {{ hesap_tarihi }} kapanışına göredir. {% endif %}Fiyatlar bedelsiz sermaye artırımlarına göre düzeltilmiştir, temettüler dahil değildir.</p>
-    <p>Bu uygulama bir bitirme projesidir. Gösterilen analizler ve tahminler yatırım tavsiyesi değildir.</p>
-  </footer>
 
   <script src="{{ statik('app.js') }}"></script>
   {% block betik %}{% endblock %}
