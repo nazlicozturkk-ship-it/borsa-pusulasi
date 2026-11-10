@@ -43,8 +43,6 @@
     </div>
   </div>
   <div id="karsilastirma-grafik" class="grafik" data-kodlar="{{ k.kodlar|join(',') }}"></div>
-  <p class="not">Bütün seriler dönem başında 0 kabul edilir, çizgiler o tarihten itibaren yüzde değişimi gösterir.
-  Dönem başında henüz işlem görmeyen hisse, ilk işlem gününden başlar.</p>
 </section>
 
 <section class="getiri-alan">
@@ -102,8 +100,7 @@
     </tbody>
   </table>
   </div>
-  <p class="not">1'e yakın değer iki hissenin çoğu gün aynı yönde hareket ettiğini, 0'a yakın değer aralarında
-  belirgin bir ilişki olmadığını gösterir. Birbirine çok benzeyen hisseleri birlikte tutmak riski pek azaltmaz.</p>
+  <p class="not">1'e yakın değer, hisselerin çoğu gün birlikte hareket ettiğini gösterir.</p>
 </section>
 {% endif %}
 {% endif %}

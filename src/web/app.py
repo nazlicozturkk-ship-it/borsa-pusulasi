@@ -9,7 +9,6 @@ Sayfalar:
   /sektor/{ad}      Sektör detayı: sektör endeksi, sektördeki hisseler (Hafta 5)
   /karsilastir      En fazla 5 hisseyi karşılaştırma, korelasyon (Hafta 5)
   /harita           Risk-getiri haritası (Hafta 5)
-  /modeller         Tahmin modellerinin karşılaştırması (Hafta 7)
   /rapor/{kod}      Yazdırılabilir şirket raporu (Hafta 7)
 
 Veri servisleri (JSON):
@@ -27,7 +26,7 @@ import pandas as pd
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -173,9 +172,10 @@ def rapor(request: Request, kod: str):
     )
 
 
-@app.get("/modeller", response_class=HTMLResponse)
-def modeller(request: Request):
-    return _sayfa(request, "modeller.html", m=veri.model_karsilastirmasi(), hazir=veri.tahmin_hazir())
+@app.get("/modeller", include_in_schema=False)
+def modeller():
+    """Eski Modeller sayfası kaldırıldı; eski bağlantılar ana sayfaya yönlenir."""
+    return RedirectResponse("/", status_code=301)
 
 
 @app.get("/sektorler", response_class=HTMLResponse)

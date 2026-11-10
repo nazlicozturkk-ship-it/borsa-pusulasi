@@ -2,75 +2,67 @@
    s: hissenin getiri satırı, tahmin: veri.tahmin_bilgisi() sonucu (yoksa None) #}
 {% macro tahmin_bolumu(s, tahmin, rapor=False) %}
 <section class="tahmin-alan">
-  <h2>Önümüzdeki 20 işlem günü <small>model tahmini</small></h2>
+  <h2>Fiyat tahmini <small>önümüzdeki 20 işlem günü</small></h2>
   {% if not tahmin %}
-    <p class="not">Bu hisse için tahmin yok. Tahminler henüz hesaplanmadıysa <b>7_tahmin_modelleri.bat</b>
-    dosyasını çalıştırın. Hisse bir yıldan kısa süredir işlem görüyorsa modelleri test etmek için yeterli geçmiş yoktur.</p>
+    <p class="not">Bu hisse için yeterli fiyat geçmişi olmadığından tahmin üretilemiyor.</p>
   {% else %}
     {% set o = tahmin.ozet %}
     {% set degisim = o.tahmini_getiri_20g %}
+    {% set hata = o.en_iyi_mape %}
     <div class="tahmin-ozet">
       <div>
-        <span class="etiket">En iyi model</span>
-        <b class="buyuk-deger">{{ o.en_iyi_baslik }}</b>
-        <span class="alt-yazi">geçmiş testte en düşük hata</span>
-      </div>
-      <div>
-        <span class="etiket">20 gün sonra tahmin</span>
+        <span class="etiket">20 gün sonra beklenen</span>
         <b class="buyuk-deger">{{ o.tahmin_20g|fiyat }} <small>TL</small></b>
         <span class="alt-yazi {{ degisim|yon }}">{{ degisim|yuzde }} bugüne göre</span>
       </div>
       <div>
-        <span class="etiket">%95 olası aralık</span>
+        <span class="etiket">Olası aralık</span>
         <b class="buyuk-deger orta">{{ o.alt_20g|fiyat }} – {{ o.ust_20g|fiyat }}</b>
-        <span class="alt-yazi">TL, 20. işlem günü</span>
+        <span class="alt-yazi">TL, %95 olasılıkla</span>
       </div>
       <div>
-        <span class="etiket">Geçmiş testte ortalama hata</span>
-        <b class="buyuk-deger">{{ o.en_iyi_mape|yuzde(1, False) }}</b>
-        <span class="alt-yazi">{% if o.en_iyi_model == 'naif' %}ölçüt model{% else %}naif modele göre {{ o.naife_gore_iyilesme|yuzde(1, False) }} daha az hata{% endif %}</span>
+        <span class="etiket">Tahmin güvenilirliği</span>
+        <b class="buyuk-deger">{% if hata < 0.05 %}Yüksek{% elif hata < 0.10 %}Orta{% else %}Düşük{% endif %}</b>
+        <span class="alt-yazi">geçmişte ortalama %{{ '%.1f'|format(hata * 100)|replace('.', ',') }} sapma</span>
       </div>
     </div>
 
     {% if o.en_iyi_model == 'naif' %}
-    <p class="bilgi">Bu hissede geçmiş testlerde hiçbir model, "fiyat değişmez" varsayımından (naif model) daha
-    isabetli olmadı. Bu yüzden en iyi tahmin bugünkü fiyattır; diğer modellerin tahminleri grafikte kesikli çizgiyle gösteriliyor.</p>
+    <p class="bilgi">Bu hissenin fiyatında belirgin bir eğilim görülmüyor; fiyatın bugünkü seviyesine yakın kalması bekleniyor.</p>
     {% endif %}
 
     <div class="grafik-kutu{% if rapor %} rapor-grafik{% endif %}">
       <div id="tahmin-grafik" class="grafik grafik-tahmin" data-kod="{{ s.kod }}"></div>
     </div>
 
-    <div class="tablo-kaydir">
-    <table class="model-tablo">
-      <thead>
-        <tr>
-          <th>Model</th>
-          <th class="sayi" title="Ortalama mutlak yüzde hata">Ort. hata</th>
-          <th class="sayi" title="Hataların karelerinin ortalamasının karekökü">RMSE (TL)</th>
-          <th class="sayi" title="20 gün sonraki yönü doğru bilme oranı">Yön doğru</th>
-          <th class="sayi" title="Naif modele göre hata azalması">Naife göre</th>
-          <th class="sayi">20 gün sonra</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for m in tahmin.modeller %}
-        <tr class="{% if m.en_iyi %}en-iyi-satir{% endif %}">
-          <th scope="row">{{ m.baslik }}{% if m.en_iyi %} <span class="rozet">en iyi</span>{% endif %}</th>
-          <td class="sayi">{{ m.mape|yuzde(1, False) }}</td>
-          <td class="sayi">{{ m.rmse|fiyat }}</td>
-          <td class="sayi">{% if m.model == 'naif' %}–{% else %}{{ m.yon|yuzde(0, False) }}{% endif %}</td>
-          <td class="sayi {{ m.naife_gore_iyilesme|yon }}">{% if m.model == 'naif' %}ölçüt{% else %}{{ m.naife_gore_iyilesme|yuzde }}{% endif %}</td>
-          <td class="sayi">{{ m.tahmin_20g|fiyat }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    </div>
-    <p class="not">Modeller geçmişte 6 farklı tarihte, o tarihten sonrasını görmeden test edildi ve sonraki 20 işlem
-    gününü tahmin etti. "Ort. hata" bu testlerdeki ortalama yüzde hatadır. Tahminler sadece geçmiş fiyatlara dayanır;
-    şirket haberleri, bilançolar veya piyasa olayları hesaba katılmaz. <b>Yatırım tavsiyesi değildir.</b>
-    {% if not rapor %}<a href="/modeller">Modeller hakkında</a>{% endif %}</p>
+    {% if not rapor %}
+    <details class="model-ayrinti">
+      <summary>Model ayrıntıları</summary>
+      <div class="tablo-kaydir">
+      <table class="model-tablo">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="sayi" title="Geçmişteki ortalama yüzde sapma">Ort. sapma</th>
+            <th class="sayi" title="20 gün sonraki yönü doğru bilme oranı">Yön doğru</th>
+            <th class="sayi">20 gün sonra</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in tahmin.modeller %}
+          <tr class="{% if m.en_iyi %}en-iyi-satir{% endif %}">
+            <th scope="row">{{ m.baslik }}{% if m.en_iyi %} <span class="rozet">kullanılan</span>{% endif %}</th>
+            <td class="sayi">{{ m.mape|yuzde(1, False) }}</td>
+            <td class="sayi">{% if m.model == 'naif' %}–{% else %}{{ m.yon|yuzde(0, False) }}{% endif %}</td>
+            <td class="sayi">{{ m.tahmin_20g|fiyat }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </details>
+    {% endif %}
+    <p class="not">Tahminler geçmiş fiyat hareketlerinden hesaplanır; şirket haberleri ve bilançolar hesaba katılmaz.</p>
   {% endif %}
 </section>
 {% endmacro %}

@@ -345,7 +345,7 @@ a.sade { color: inherit; }
 /* ---------- Tahmin bölümü (Hafta 7) ---------- */
 .tahmin-alan { background: var(--panel); border: 1px solid var(--cizgi); border-radius: var(--yaricap); box-shadow: var(--golge); padding: 1.25rem; }
 .tahmin-alan .grafik-kutu { box-shadow: none; border: 0; padding: 0; margin: 1rem 0; }
-.tahmin-ozet { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+.tahmin-ozet { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
 .tahmin-ozet > div { background: var(--panel-acik); border-radius: 12px; padding: .85rem 1rem; display: flex; flex-direction: column; gap: .15rem; }
 .tahmin-ozet .etiket { color: var(--soluk); font-size: .82rem; font-weight: 600; }
 .tahmin-ozet .buyuk-deger { font: 700 1.45rem var(--baslik); line-height: 1.2; }
@@ -355,6 +355,9 @@ a.sade { color: inherit; }
 .tahmin-ozet .alt-yazi.art { color: var(--art); font-weight: 700; }
 .tahmin-ozet .alt-yazi.az { color: var(--az); font-weight: 700; }
 .grafik-tahmin { height: 380px; }
+.model-ayrinti { margin-top: 1rem; }
+.model-ayrinti > summary { cursor: pointer; color: var(--vurgu); font-weight: 600; font-size: .92rem; width: fit-content; }
+.model-ayrinti[open] > summary { margin-bottom: .5rem; }
 .bilgi { margin: .9rem 0 0; padding: .65rem .9rem; background: color-mix(in srgb, var(--altin) 8%, transparent); border-left: 3px solid var(--altin); border-radius: 0 10px 10px 0; font-size: .92rem; max-width: 90ch; }
 .model-tablo { width: 100%; border-collapse: collapse; min-width: 560px; }
 .model-tablo th, .model-tablo td { padding: .5rem .65rem; border-top: 1px solid var(--cizgi); white-space: nowrap; }
@@ -423,7 +426,8 @@ a.sade { color: inherit; }
   .sayfa { padding-top: 1rem; }
   .benzer-liste a { grid-template-columns: 1.4rem 4rem 1fr 6.5rem; }
   .benzerlik-cubuk { width: 2.5rem; }
-  .tahmin-ozet, .rapor-sayilar { grid-template-columns: 1fr 1fr; }
+  .tahmin-ozet { grid-template-columns: 1fr; }
+  .rapor-sayilar { grid-template-columns: 1fr 1fr; }
   .grafik-tahmin { height: 300px; }
 }
 

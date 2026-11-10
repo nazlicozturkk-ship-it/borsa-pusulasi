@@ -3,9 +3,7 @@
 
 {% block icerik %}
 <h1 class="sayfa-baslik">Risk–getiri haritası <small>{{ noktalar|length }} hisse</small></h1>
-<p class="giris">Her nokta bir hisse. Sağa gittikçe fiyatı daha oynak (riskli), yukarı çıktıkça daha çok
-kazandırmış. Kesikli çizgiler BIST 100'ü gösterir: sol üstteki hisseler endeksten <b>daha az oynaklıkla daha
-fazla</b> kazandırmış. Bir noktaya tıklayarak hissenin sayfasına gidebilirsiniz.</p>
+<p class="giris">Sağa gittikçe risk, yukarı çıktıkça getiri artar. Kesikli çizgiler BIST 100'dür.</p>
 
 <div class="harita-arac">
   <nav class="sekmeler" aria-label="Getiri dönemi">
@@ -25,8 +23,6 @@ fazla</b> kazandırmış. Bir noktaya tıklayarak hissenin sayfasına gidebilirs
 <section class="grafik-kutu">
   <div id="harita" class="grafik grafik-harita"></div>
 </section>
-<p class="not">Yatay eksen son 1 yılın yıllık oynaklığı (volatilite), dikey eksen seçilen dönemin getirisidir.
-Getiriler nominal TL getirisidir.</p>
 {% endblock %}
 
 {% block betik %}

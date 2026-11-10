@@ -403,7 +403,6 @@ function donemSekmeleriKur() {
    Son ~6 ayın kapanışları ve her modelin 20 günlük tahmini. En iyi model kalın çizgi ve
    %95 güven aralığı bandıyla, diğer modeller kesikli ince çizgiyle gösterilir.
    Tahmin çizgileri bugünkü kapanıştan başlar ki geçmişle birleşik görünsün. */
-const MODEL_RENKLERI = { naif: "--soluk", hareketli_ortalama: "--seri3", dogrusal_regresyon: "--seri2", arima: "--seri4" };
 
 async function tahminGrafikKur(id) {
   const kutu = document.getElementById(id);
@@ -434,15 +433,14 @@ async function tahminGrafikKur(id) {
     izler.push({ x: t, y: [sonF, ...enIyi.alt], type: "scatter", mode: "lines", line: { width: 0 },
                  fill: "tonexty", fillcolor: bant + "22", name: "%95 aralık", hoverinfo: "skip" });
   }
-  // Önce diğer modeller, en iyi model en üstte çizilsin
-  [...v.modeller.filter((m) => !m.en_iyi), ...(enIyi ? [enIyi] : [])].forEach((m) => {
+  // Sadece kullanılan (geçmişte en isabetli) modelin tahmini çizilir
+  if (enIyi) {
     izler.push({
-      x: [sonT, ...m.tarih], y: [sonF, ...m.tahmin], name: m.baslik + (m.en_iyi ? " (en iyi)" : ""),
-      type: "scatter", mode: "lines",
-      line: m.en_iyi ? { color: css("--altin"), width: 3 } : { color: css(MODEL_RENKLERI[m.ad] || "--soluk"), width: 1.5, dash: "dot" },
-      hovertemplate: `${m.baslik}: %{y:,.2f}<extra></extra>`,
+      x: [sonT, ...enIyi.tarih], y: [sonF, ...enIyi.tahmin], name: "Tahmin",
+      type: "scatter", mode: "lines", line: { color: css("--altin"), width: 3 },
+      hovertemplate: "Tahmin: %{y:,.2f}<extra></extra>",
     });
-  });
+  }
   const tumDegerler = izler.flatMap((i) => i.y).filter((x) => Number.isFinite(x));
   const alt = Math.min(...tumDegerler), ust = Math.max(...tumDegerler), pay = (ust - alt) * 0.05;
   Plotly.react(kutu, izler, {

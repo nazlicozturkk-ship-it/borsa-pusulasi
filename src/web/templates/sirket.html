@@ -33,7 +33,7 @@
     </div>
   </div>
   <div id="fiyat-grafik" class="grafik" data-kod="{{ s.kod }}"></div>
-  <p class="not" id="karsilastir-not" hidden>Karşılaştırmada iki seri de dönem başında 0 kabul edilip yüzde değişim olarak gösterilir.</p>
+  <p class="not" id="karsilastir-not" hidden>Seriler yüzde değişim olarak gösterilir.</p>
 </section>
 
 {{ tahmin_bolumu(s, tahmin) }}
@@ -67,7 +67,7 @@
   </table>
   </div>
   {% if s.yillik_5y == s.yillik_5y or s.yillik_10y == s.yillik_10y %}
-  <p class="not">Yıllık ortalama (bileşik): 5 yılda {{ s.yillik_5y|yuzde }}, 10 yılda {{ s.yillik_10y|yuzde }}. Getiriler nominal TL getirisidir, enflasyondan arındırılmamıştır.</p>
+  <p class="not">Yıllık ortalama: 5 yılda {{ s.yillik_5y|yuzde }}, 10 yılda {{ s.yillik_10y|yuzde }}.</p>
   {% endif %}
   {% if s.getiri_10y != s.getiri_10y %}
   <p class="not">Hisse {{ s.ilk_tarih }} tarihinden beri işlem gördüğü için daha uzun dönemlerin getirisi hesaplanamaz.</p>
@@ -115,9 +115,7 @@
     </li>
     {% endfor %}
   </ol>
-  <p class="not">Benzerlik, iki hissenin günlük getirilerinin korelasyonudur (−1 ile 1 arası). 1'e yaklaştıkça
-  hisseler çoğu gün aynı yönde hareket etmiştir.
-  <a href="/karsilastir?k={{ s.kod }}{% for b in benzerler[:4] %},{{ b.kod }}{% endfor %}">Hepsini karşılaştır</a></p>
+  <p class="not"><a href="/karsilastir?k={{ s.kod }}{% for b in benzerler[:4] %},{{ b.kod }}{% endfor %}">Hepsini karşılaştır</a></p>
 </section>
 {% endif %}
 {% endblock %}

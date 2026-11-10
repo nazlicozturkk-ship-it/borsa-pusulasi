@@ -4,8 +4,7 @@
 {% block icerik %}
 {% if not hafta5 %}{% include "_analiz_eksik.html" %}{% else %}
 <h1 class="sayfa-baslik">Sektörler <small>{{ sektorler|length }} sektör</small></h1>
-<p class="giris">Her hücre, sektördeki hisselerin o dönemdeki <b>medyan</b> getirisidir: sektördeki tipik
-hissenin ne kadar kazandırdığını gösterir. Bir sektöre tıklayarak sektör endeksini ve hisselerini görebilirsiniz.</p>
+<p class="giris">Sektördeki tipik hissenin dönem getirisi. Ayrıntı için bir sektöre tıklayın.</p>
 
 <div class="tablo-kap">
 <table class="sektor-isi" id="sektor-isi">
@@ -43,7 +42,5 @@ hissenin ne kadar kazandırdığını gösterir. Bir sektöre tıklayarak sektö
   </tbody>
 </table>
 </div>
-<p class="not">5 ve 10 yıllık değerler sadece o kadar süredir işlem gören hisselerden hesaplanır; bu yüzden
-bazı sektörlerde az sayıda hisseye dayanır. Getiriler nominal TL getirisidir.</p>
 {% endif %}
 {% endblock %}

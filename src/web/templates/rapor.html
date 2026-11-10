@@ -47,8 +47,7 @@
       </tbody>
     </table>
     </div>
-    <p class="not">Son 1 yılda en büyük düşüş {{ s.max_dusus_1y|yuzde }}. Getiriler nominal TL getirisidir;
-    fiyatlar bölünmelere göre düzeltilmiş, temettüler dahil edilmemiştir.</p>
+    <p class="not">Son 1 yılda en büyük düşüş {{ s.max_dusus_1y|yuzde }}.</p>
   </section>
 
   {{ tahmin_bolumu(s, tahmin, rapor=True) }}
@@ -60,8 +59,7 @@
   </section>
   {% endif %}
 
-  <p class="rapor-imza">Bu rapor Borsa Pusulası tarafından {{ olusturma }} tarihinde otomatik oluşturulmuştur.
-  Bir bitirme projesidir; içerdiği analizler ve tahminler yatırım tavsiyesi değildir.</p>
+  <p class="rapor-imza">Borsa Pusulası · {{ olusturma }} · Yatırım tavsiyesi değildir.</p>
 </article>
 {% endblock %}
 

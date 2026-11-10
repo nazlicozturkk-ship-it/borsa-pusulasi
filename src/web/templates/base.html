@@ -29,7 +29,6 @@
         <a href="/sektorler" {% if request.url.path.startswith('/sektor') %}aria-current="page"{% endif %}>Sektörler</a>
         <a href="/karsilastir" {% if request.url.path.startswith('/karsilastir') %}aria-current="page"{% endif %}>Karşılaştır</a>
         <a href="/harita" {% if request.url.path.startswith('/harita') %}aria-current="page"{% endif %}>Risk haritası</a>
-        <a href="/modeller" {% if request.url.path.startswith('/modeller') %}aria-current="page"{% endif %}>Modeller</a>
       </nav>
       <div class="arama" role="search">
         <input id="arama-kutusu" type="search" placeholder="Şirket ara: THYAO, Aselsan…" autocomplete="off" aria-label="Şirket ara">
@@ -41,13 +40,8 @@
   <main class="sayfa">
     {% if not veri_var %}
       <section class="bos">
-        <h1>Henüz gösterilecek analiz yok</h1>
-        <p>Önce verileri indirip analizi çalıştırın:</p>
-        <ol>
-          <li><b>2_fiyat_verisi.bat</b> ile fiyat verilerini indirin.</li>
-          <li><b>3_analiz.bat</b> ile getirileri hesaplayın.</li>
-          <li>Bu sayfayı yenileyin.</li>
-        </ol>
+        <h1>Veriler hazırlanıyor</h1>
+        <p>Lütfen birkaç dakika sonra tekrar deneyin.</p>
       </section>
     {% else %}
       {% block icerik %}{% endblock %}
