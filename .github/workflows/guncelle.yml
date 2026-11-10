@@ -3,7 +3,7 @@
 # Bilgisayar kapali olsa bile GitHub'in sunucularinda calisir:
 #   - Seans boyunca (10:00-18:30) her 30 dakikada: fiyatlar + getiri/risk analizleri
 #   - Kapanistan sonra (18:50): sirket listesi + fiyatlar + analizler + tahmin modelleri
-# Sonuclar internetteki veritabanina (Neon) aktarilir, Vercel'deki site oradan okur.
+# Sonuclar internetteki veritabanina (Supabase) aktarilir, Vercel'deki site oradan okur.
 # Saatler UTC'dir; Turkiye saati = UTC + 3. GitHub zamanlanmis isleri birkac dakika gec baslatabilir.
 
 name: Veri guncelleme

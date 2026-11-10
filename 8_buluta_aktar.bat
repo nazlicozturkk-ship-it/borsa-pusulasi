@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  Hafta 8 - Verileri internetteki veritabanina (Neon PostgreSQL) aktarir.
+REM  Hafta 8 - Verileri internetteki veritabanina (Supabase PostgreSQL) aktarir.
 REM  Vercel'deki site verileri oradan okur.
 REM  Ilk sefer: tum fiyatlar gonderilir (birkac dakika).
 REM  Sonraki seferler: sadece yeni gunler (birkac saniye).
@@ -14,11 +14,11 @@ set PYTHONIOENCODING=utf-8
 if not exist logs mkdir logs
 
 if exist .env goto calistir
-> .env echo # Internetteki veritabaninin (Neon) baglanti adresi. Bu dosya GitHub'a yuklenmez.
+> .env echo # Internetteki veritabaninin (Supabase) baglanti adresi. Bu dosya GitHub'a yuklenmez.
 >> .env echo BULUT_VERITABANI_URL=
 echo.
 echo  .env dosyasi olusturuldu ve Not Defteri'nde aciliyor.
-echo  BULUT_VERITABANI_URL= satirinin sonuna Neon baglanti adresini yapistir,
+echo  BULUT_VERITABANI_URL= satirinin sonuna Supabase baglanti adresini yapistir,
 echo  kaydet (Ctrl+S), Not Defteri'ni kapat ve bu dosyaya tekrar cift tikla.
 echo.
 notepad .env

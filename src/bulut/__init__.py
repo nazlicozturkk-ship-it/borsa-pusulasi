@@ -1,1 +1,1 @@
-"""İnternetteki veritabanına (Neon PostgreSQL) aktarma."""
+"""İnternetteki veritabanına (Supabase PostgreSQL) aktarma."""

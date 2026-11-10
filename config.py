@@ -37,7 +37,7 @@ def _env_dosyasini_oku() -> None:
 
 
 def postgresql_adresi(adres: str) -> str:
-    """Neon/Vercel'in verdiği postgres:// adresini SQLAlchemy'nin anlayacağı biçime çevirir."""
+    """Supabase/Vercel'in verdiği postgres:// adresini SQLAlchemy'nin anlayacağı biçime çevirir."""
     for on_ek in ("postgres://", "postgresql://"):
         if adres.startswith(on_ek):
             return "postgresql+psycopg2://" + adres[len(on_ek):]
@@ -51,10 +51,15 @@ _env_dosyasini_oku()
 # PostgreSQL'e geçmek için alttaki satırı açıp SIFRE kısmını kendi şifrenle değiştirmen yeterli:
 # VERITABANI_URL = "postgresql+psycopg2://postgres:SIFRE@localhost:5432/bist"
 #
-# İnternetteki sitede (Vercel) DATABASE_URL değişkeni tanımlıdır ve site PostgreSQL'i (Neon) kullanır.
-# Senin bilgisayarında bu değişken yoktur; bütün işler hızlı çalışan SQLite dosyasıyla yapılır,
+# İnternetteki sitede (Vercel) SUPABASE_DATABASE_URL değişkeni tanımlıdır ve site PostgreSQL'i (Supabase) kullanır.
+# (DATABASE_URL eski Neon bağlantısıdır, sadece yedek olarak bakılır.)
+# Senin bilgisayarında bu değişkenler yoktur; bütün işler hızlı çalışan SQLite dosyasıyla yapılır,
 # sonuçlar 8_buluta_aktar.bat ile internetteki veritabanına kopyalanır.
-_bulut = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+_bulut = (
+    os.environ.get("SUPABASE_DATABASE_URL")
+    or os.environ.get("DATABASE_URL")
+    or os.environ.get("POSTGRES_URL")
+)
 VERITABANI_URL = postgresql_adresi(_bulut) if _bulut else f"sqlite:///{(VERI_KLASORU / 'bist.db').as_posix()}"
 
 # 8_buluta_aktar.bat'ın verileri kopyalayacağı internetteki veritabanı (.env dosyasından okunur)

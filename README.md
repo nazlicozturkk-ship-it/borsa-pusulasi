@@ -12,7 +12,7 @@ Borsa İstanbul'da işlem gören tüm şirketlerin geçmiş fiyat verilerini top
 |---|---|
 | Dil | Python 3.12 |
 | Veri kaynağı | borsapy (KAP, İş Yatırım, TradingView), yfinance |
-| Veritabanı | SQLite (bilgisayarda), PostgreSQL – Neon (internetteki site) |
+| Veritabanı | SQLite (bilgisayarda), PostgreSQL – Supabase (internetteki site) |
 | Yayın | Vercel |
 | Veritabanı erişimi | SQLAlchemy |
 | Analiz | pandas, numpy, statsmodels, scikit-learn |
@@ -57,7 +57,7 @@ BitirmeOdevi1/
 │   │   ├── degerlendirme.py    Geriye dönük test, MAE / RMSE / MAPE / yön doğruluğu
 │   │   └── calistir.py         Tüm hisselerde paralel çalıştırma, 20 günlük tahmin
 │   ├── bulut/
-│   │   └── aktar.py            SQLite → PostgreSQL (Neon) aktarımı, sadece değişen veriler
+│   │   └── aktar.py            SQLite → PostgreSQL (Supabase) aktarımı, sadece değişen veriler
 │   ├── web/
 │   │   ├── app.py              FastAPI uygulaması: sayfalar ve JSON servisleri
 │   │   ├── veri.py             Sayfaların veri sorguları (önbellekli)
@@ -85,7 +85,7 @@ BitirmeOdevi1/
 
 ```
 GitHub Actions (seansta her 30 dk)                         İnternet
-fiyat → analiz → (akşam: tahmin) → SQLite ──aktar──▶ Neon PostgreSQL ◀── Vercel (site)
+fiyat → analiz → (akşam: tahmin) → SQLite ──aktar──▶ Supabase PostgreSQL ◀── Vercel (site)
 ```
 
 - Güncelleme GitHub'ın sunucularında çalışır (`.github/workflows/guncelle.yml`); bilgisayar kapalı olabilir.

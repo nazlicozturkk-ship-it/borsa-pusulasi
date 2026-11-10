@@ -1,5 +1,5 @@
 """
-Hafta 8 - Verileri internetteki veritabanına (Neon PostgreSQL) aktarma.
+Hafta 8 - Verileri internetteki veritabanına (Supabase PostgreSQL) aktarma.
 
 Bütün işler bilgisayardaki hızlı SQLite dosyasında (data/bist.db) yapılır. Bu program
 sonuçları internetteki PostgreSQL veritabanına kopyalar; Vercel'deki site oradan okur.
