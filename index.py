@@ -1,5 +1,5 @@
 """
-Vercel giriş dosyası: internetteki site bu dosyadaki `app` nesnesiyle çalışır.
+Web uygulamasının giriş dosyası: sitenin internetteki kopyası bu dosyadaki `app` nesnesiyle çalışır.
 Bilgisayarda siteyi açmak için 6_web_uygulamasi.bat kullanılır.
 """
 

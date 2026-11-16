@@ -5,4 +5,3 @@ logs/*.log
 data/*.db
 .ipynb_checkpoints/
 .env
-.vercel

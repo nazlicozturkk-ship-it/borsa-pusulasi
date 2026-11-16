@@ -17,14 +17,14 @@ README.md'de klasör yapısı ve çalıştırma adımları var; docs/haftaN_notl
   her hisse için en düşük hatalı model seçilir (`src/tahmin/`).
 - `.bat` dosyaları ASCII + CRLF satır sonu olmalı (Türkçe karakter yok), `chcp 65001` ve `PYTHONUTF8=1` kullanır.
 
-## Yayın (internet)
-- Site: https://borsa-pusulasi.vercel.app (Vercel, kök `index.py`, kütüphaneler `requirements.txt`).
-- GitHub: https://github.com/nazlicozturkk-ship-it/borsa-pusulasi — `9_github_yukle.bat` ile yüklenir; her yüklemede Vercel siteyi yeniler.
-- Veritabanı internette: Supabase PostgreSQL. Vercel'de `DATABASE_URL`, GitHub Actions'ta `BULUT_VERITABANI_URL` gizli değişkeni.
-  Bağlantı adresi şifre içerir: asla dosyaya, koda veya commit'e yazma.
-- Otomatik güncelleme: GitHub Actions (`github_actions/guncelle.yml`, yüklemede `.github/workflows/` içine kopyalanır).
-  Seansta 30 dakikada bir fiyat + analiz, 18:50'de tahmin; sonuç `src/bulut/aktar.py` ile Supabase'e aktarılır.
-- `.vercel.app` adresleri bazı Türk internet bağlantılarında açılmayabiliyor (kullanıcının Wi-Fi'sinde yaşandı).
+## İnternetteki kopya (kullanıcı raporda/sunumda bahsedilmesini istemiyor)
+- Kullanıcı Vercel, Neon, GitHub Actions gibi yayın ayrıntılarının rapor, sunum, README ve site metinlerinde geçmesini istemiyor.
+  Proje sunumda bilgisayardan (`6_web_uygulamasi.bat`) gösterilir.
+- Yine de site https://borsa-pusulasi.vercel.app adresinde çalışmaya devam ediyor (kullanıcı kapatılmasını istemedi).
+  Gerekli dosyalar `yayin/` klasöründe: `guncelle.yml` (otomatik güncelleme; `9_github_yukle.bat` onu `.github/workflows/` içine kopyalar),
+  `aktar.py` (SQLite → internetteki PostgreSQL), `requirements-guncelleme.txt`. Kökte kalması zorunlu olanlar: `index.py`, `requirements.txt`, `public/`.
+- GitHub: https://github.com/nazlicozturkk-ship-it/borsa-pusulasi — `9_github_yukle.bat` ile yüklenir.
+  Veritabanı bağlantı adresi şifre içerir: asla dosyaya, koda veya commit'e yazma.
 
 ## Tasarım kararları (kullanıcı istekleri)
 - Tema: "Alacakaranlık" (açık zemin, mor-pembe gün batımı gradyanı, Sora + Manrope yazı tipleri, İstanbul silueti, pusula logosu). Tema değiştirici yok.

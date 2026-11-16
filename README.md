@@ -12,8 +12,7 @@ Borsa İstanbul'da işlem gören tüm şirketlerin geçmiş fiyat verilerini top
 |---|---|
 | Dil | Python 3.12 |
 | Veri kaynağı | borsapy (KAP, İş Yatırım, TradingView), yfinance |
-| Veritabanı | SQLite (bilgisayarda), PostgreSQL – Supabase (internetteki site) |
-| Yayın | Vercel |
+| Veritabanı | SQLite |
 | Veritabanı erişimi | SQLAlchemy |
 | Analiz | pandas, numpy, statsmodels, scikit-learn |
 | Tahmin modelleri | ARIMA, XGBoost, LightGBM, Prophet, LSTM (TensorFlow) |
@@ -25,10 +24,9 @@ Borsa İstanbul'da işlem gören tüm şirketlerin geçmiş fiyat verilerini top
 ```
 BitirmeOdevi1/
 ├── config.py               Proje ayarları (klasörler, veritabanı adresi)
-├── requirements.txt        İnternetteki site (Vercel) için gereken kütüphaneler
-├── requirements-tam.txt    Bilgisayardaki tam kurulum için kütüphaneler
-├── index.py, vercel.json   Vercel ayarları (internetteki site)
-├── .env                    İnternetteki veritabanının adresi (gizli, GitHub'a yüklenmez)
+├── requirements.txt        Web uygulamasının kütüphaneleri
+├── requirements-tam.txt    Tam kurulum için kütüphaneler (kurulum.bat kullanır)
+├── index.py                Web uygulamasının giriş dosyası
 ├── kurulum.bat             Kütüphaneleri kurar (çift tıkla)
 ├── 1_sirket_listesi.bat    Hafta 1: tüm BIST şirketlerini çeker (çift tıkla)
 ├── 2_fiyat_verisi.bat      Hafta 2: 10 yıllık fiyat verilerini indirir/günceller
@@ -39,9 +37,8 @@ BitirmeOdevi1/
 ├── 6_web_uygulamasi.bat    Hafta 4: web uygulamasını başlatır (http://127.0.0.1:8000)
 ├── 7_tahmin_deneme.bat     Hafta 6: tahmin modelleri, sadece BIST 30 ile hızlı deneme
 ├── 7_tahmin_modelleri.bat  Hafta 6: tahmin modelleri, tüm hisseler
-├── 8_buluta_aktar.bat      Bilgisayardaki verileri internetteki veritabanına elle aktarır (isteğe bağlı)
-├── github_actions/         Otomatik güncelleme ayarı (yüklemede .github/workflows içine kopyalanır)
-├── 9_github_yukle.bat      Projeyi GitHub'a yükler; Vercel siteyi kendiliğinden yeniler
+├── 9_github_yukle.bat      Projeyi GitHub'a yükler
+├── 10_vscode_sqlite_kur.bat  VS Code'da veritabanını görüntüleme eklentisi
 ├── public/kutuphane/       Grafik kütüphanesi (plotly.js)
 ├── src/
 │   ├── log_ayari.py        Çalışma kayıtlarını logs/ klasörüne yazar
@@ -56,8 +53,6 @@ BitirmeOdevi1/
 │   │   ├── modeller.py         Naif, hareketli ortalama, doğrusal regresyon, ARIMA
 │   │   ├── degerlendirme.py    Geriye dönük test, MAE / RMSE / MAPE / yön doğruluğu
 │   │   └── calistir.py         Tüm hisselerde paralel çalıştırma, 20 günlük tahmin
-│   ├── bulut/
-│   │   └── aktar.py            SQLite → PostgreSQL (Supabase) aktarımı, sadece değişen veriler
 │   ├── web/
 │   │   ├── app.py              FastAPI uygulaması: sayfalar ve JSON servisleri
 │   │   ├── veri.py             Sayfaların veri sorguları (önbellekli)
@@ -80,20 +75,6 @@ BitirmeOdevi1/
 5. Sonuçlar Excel ile açılabilen `data/sirketler.csv`, `data/getiriler.csv` ve `data/veri_kalitesi.csv` dosyalarında; tüm veriler `data/bist.db` veritabanında.
 6. `6_web_uygulamasi.bat` ile web uygulamasını aç.
 7. İsteğe bağlı: `5_otomatik_guncelleme_ac.bat` ile verilerin hafta içi her akşam kendiliğinden güncellenmesini aç.
-
-## İnternette yayınlama (Vercel) ve otomatik güncelleme
-
-```
-GitHub Actions (seansta her 30 dk)                         İnternet
-fiyat → analiz → (akşam: tahmin) → SQLite ──aktar──▶ Supabase PostgreSQL ◀── Vercel (site)
-```
-
-- Güncelleme GitHub'ın sunucularında çalışır (`.github/workflows/guncelle.yml`); bilgisayar kapalı olabilir.
-- Seans boyunca (10:00–18:30) her 30 dakikada fiyatlar ve getiri/risk analizleri, kapanıştan sonra
-  (18:50) şirket listesi ve tahmin modelleri de yenilenir. Borsa verileri 15 dakika gecikmelidir.
-- İnternetteki veritabanının adresi GitHub'da `BULUT_VERITABANI_URL` gizli değişkeninde,
-  Vercel'de `DATABASE_URL` değişkeninde durur.
-- Bilgisayardaki site SQLite ile çalışmaya devam eder (`4_gunluk_guncelleme.bat`).
 
 ## Haftalık ilerleme
 

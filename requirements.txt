@@ -1,4 +1,4 @@
-# Internetteki site (Vercel) icin gereken kutuphaneler.
+# Web uygulamasinin calismasi icin gereken kutuphaneler.
 # Bilgisayarindaki kurulum icin requirements-tam.txt kullanilir (kurulum.bat).
 fastapi==0.162.0
 jinja2

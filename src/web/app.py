@@ -227,8 +227,6 @@ def plotly_js():
     """
     Grafik kütüphanesini (plotly.js) sunar: önce public/kutuphane klasöründeki kopya, yoksa kurulu
     Python plotly paketinin içindeki dosya. Site internetsiz de (örneğin sunumda) grafik çizebilir.
-    İnternetteki sitede (Vercel) public/ klasörü doğrudan Vercel'in hızlı sunucularından verilir,
-    bu fonksiyona hiç gelinmez.
     """
     yol = KLASOR.parents[1] / "public" / "kutuphane" / "plotly.min.js"
     if not yol.exists():

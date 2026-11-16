@@ -74,7 +74,7 @@ def _yukle() -> dict:
         # Hafta 6 tabloları (tahmin modelleri çalıştırılmadıysa boş gelir)
         "model_performans": tablo_oku("model_performans"),
         "tahmin_ozeti": tablo_oku("tahmin_ozeti"),
-        # İnternetteki sitede: verilerin en son ne zaman güncellendiği (GitHub Actions yazar)
+        # Verilerin en son ne zaman güncellendiği (otomatik güncelleme yazar)
         "guncelleme": tablo_oku("guncelleme"),
     }
 

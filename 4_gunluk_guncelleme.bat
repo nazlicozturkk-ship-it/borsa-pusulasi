@@ -1,7 +1,6 @@
 @echo off
 REM ============================================================
-REM  Gunluk guncelleme (bilgisayardaki site icin): yeni fiyatlari indirir, analizleri ve tahminleri yeniler.
-REM  Internetteki site GitHub Actions ile kendiliginden guncellenir (.github/workflows/guncelle.yml).
+REM  Gunluk guncelleme: yeni fiyatlari indirir, analizleri ve tahminleri yeniler.
 REM  Elle cift tiklanabilir veya zamanlanmis gorevle otomatik calisir.
 REM  Otomatik calismada "otomatik" parametresi verilir, pencere beklemez.
 REM  Kayit: logs\gunluk_guncelleme.log

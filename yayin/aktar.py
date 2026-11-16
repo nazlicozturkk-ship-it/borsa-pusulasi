@@ -1,8 +1,8 @@
 """
-Hafta 8 - Verileri internetteki veritabanına (Supabase PostgreSQL) aktarma.
+Verileri internetteki kopya veritabanına (PostgreSQL) aktarma.
 
 Bütün işler bilgisayardaki hızlı SQLite dosyasında (data/bist.db) yapılır. Bu program
-sonuçları internetteki PostgreSQL veritabanına kopyalar; Vercel'deki site oradan okur.
+sonuçları internetteki PostgreSQL veritabanına kopyalar; sitenin internetteki kopyası oradan okur.
 
 - Fiyatlar: ilk seferde hepsi (1,1 milyon satır) kopyalanır. Sonraki seferlerde sadece
   değişen hisselerin yeni günleri gönderilir (birkaç saniye).
@@ -10,7 +10,7 @@ sonuçları internetteki PostgreSQL veritabanına kopyalar; Vercel'deki site ora
 
 Hızlı kopyalama için PostgreSQL'in COPY komutu kullanılır (satır satır eklemekten ~50 kat hızlı).
 
-Çalıştırmak için: 8_buluta_aktar.bat
+Otomatik güncelleme (guncelle.yml) her çalışmada bunu çalıştırır; elle: yayin\\buluta_aktar.bat
 """
 
 import io

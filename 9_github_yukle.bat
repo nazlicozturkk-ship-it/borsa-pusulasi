@@ -2,7 +2,6 @@
 REM ============================================================
 REM  Projeyi GitHub'a yukler (ilk seferde depo adresini sorar).
 REM  Sonraki seferlerde sadece degisiklikleri gonderir.
-REM  Vercel, GitHub'a her yuklemeden sonra siteyi kendiliginden yeniler.
 REM  Kayit: logs\github.log
 REM ============================================================
 chcp 65001 >nul
@@ -43,9 +42,9 @@ git remote add origin "%DEPO%"
 :yukle
 echo.
 echo Dosyalar hazirlaniyor...
-REM Otomatik guncelleme ayari GitHub Actions klasorune kopyalanir
+REM Otomatik guncelleme ayari yerine kopyalanir
 if not exist .github\workflows mkdir .github\workflows
-copy /y github_actions\guncelle.yml .github\workflows\guncelle.yml >nul
+copy /y yayin\guncelle.yml .github\workflows\guncelle.yml >nul
 git add -A
 git commit -q -m "Borsa Pusulasi guncelleme %date% %time:~0,5%" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 echo GitHub'a gonderiliyor (ilk seferde tarayicida GitHub girisi istenebilir)...
