@@ -355,6 +355,8 @@ a.sade { color: inherit; }
 .tahmin-ozet .alt-yazi.art { color: var(--art); font-weight: 700; }
 .tahmin-ozet .alt-yazi.az { color: var(--az); font-weight: 700; }
 .grafik-tahmin { height: 380px; }
+.model-notu { margin: .75rem 0 0; font-size: .92rem; color: var(--soluk); }
+.model-notu b { color: var(--murekkep); }
 .model-ayrinti { margin-top: 1rem; }
 .model-ayrinti > summary { cursor: pointer; color: var(--vurgu); font-weight: 600; font-size: .92rem; width: fit-content; }
 .model-ayrinti[open] > summary { margin-bottom: .5rem; }
